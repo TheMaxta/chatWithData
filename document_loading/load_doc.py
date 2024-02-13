@@ -1,7 +1,7 @@
-from langchain.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyPDFLoader
 
 
-PDF_PATH = "../documents/Rich-Dad-Poor-Dad.pdf"
+PDF_PATH = '../documents/Rich-Dad-Poor-Dad.pdf'
 
 # create loader
 loader = PyPDFLoader(PDF_PATH)
