@@ -1,9 +1,13 @@
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAI
-from langchain.retrievers import ContextualCompressionRetriever
-from langchain.retrievers.document_compressors import LLMChainExtractor
+
+from langchain.retrievers.self_query.base import SelfQueryRetriever
+from langchain.chains.query_constructor.base import AttributeInfo
+
 from decouple import config
+
+
 
 TEXT = ["Python is a versatile and widely used programming language known for its clean and readable syntax, which relies on indentation for code structure",
         "It is a general-purpose language suitable for web development, data analysis, AI, machine learning, and automation. Python offers an extensive standard library with modules covering a broad range of tasks, making it efficient for developers.",
@@ -26,14 +30,31 @@ vector_db = Chroma.from_texts(
     metadatas=meta_data
 )
 
+metadata_field_info = [
+    AttributeInfo(
+        name="source",
+        description="This is the source documents there are 4 main documents,  `document 1`, `document 2`, `document 3`, `document 4`",
+        type="string",
+    ),
+    AttributeInfo(
+        name="page",
+        description="The page from the details of Python",
+        type="integer",
+    ),
+]
+
+document_content_description = "Info on Python Programming Language"
 llm = OpenAI(temperature=0, openai_api_key=config("OPENAI_API_KEY"))
-compressor = LLMChainExtractor.from_llm(llm)
 
-
-compression_retriever = ContextualCompressionRetriever(
-    base_compressor=compressor,
-    base_retriever=vector_db.as_retriever()
+retriever = SelfQueryRetriever.from_llm(
+    llm=llm,
+    vectorstore=vector_db,
+    document_contents=document_content_description,
+    metadata_field_info=metadata_field_info,
+    verbose=True
 )
 
-compressed_docs = compression_retriever.get_relevant_documents("What areas is Python mostly used")
-print(compressed_docs)
+
+docs = retriever.get_relevant_documents(
+    "What was mentioned in the 4th document about  Python")
+print(docs)

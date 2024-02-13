@@ -1,9 +1,10 @@
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAI
-from langchain.retrievers import ContextualCompressionRetriever
-from langchain.retrievers.document_compressors import LLMChainExtractor
+from langchain.prompts import PromptTemplate
+from langchain.chains import RetrievalQA
+from langchain.chat_models import ChatOpenAI
 from decouple import config
+
 
 TEXT = ["Python is a versatile and widely used programming language known for its clean and readable syntax, which relies on indentation for code structure",
         "It is a general-purpose language suitable for web development, data analysis, AI, machine learning, and automation. Python offers an extensive standard library with modules covering a broad range of tasks, making it efficient for developers.",
@@ -26,14 +27,43 @@ vector_db = Chroma.from_texts(
     metadatas=meta_data
 )
 
-llm = OpenAI(temperature=0, openai_api_key=config("OPENAI_API_KEY"))
-compressor = LLMChainExtractor.from_llm(llm)
 
-
-compression_retriever = ContextualCompressionRetriever(
-    base_compressor=compressor,
-    base_retriever=vector_db.as_retriever()
+# create prompt
+QA_prompt = PromptTemplate(
+    template="""Use the following pieces of context to answer the user question.
+Context: {text}
+Question: {question}
+Answer:""",
+    input_variables=["text", "question"]
 )
 
-compressed_docs = compression_retriever.get_relevant_documents("What areas is Python mostly used")
-print(compressed_docs)
+# create chat model
+llm = ChatOpenAI(openai_api_key=config("OPENAI_API_KEY"), temperature=0)
+
+# create retriever chain
+qa_chain = RetrievalQA.from_chain_type(
+    llm=llm,
+    retriever=vector_db.as_retriever(),
+    return_source_documents=True,
+    chain_type="map_reduce",
+)
+
+# question
+question = "What areas is Python mostly used"
+
+# call QA chain
+response = qa_chain({"query": question})
+
+print(response)
+
+print("============================================")
+print("====================Result==================")
+print("============================================")
+print(response["result"])
+
+
+print("============================================")
+print("===============Source Documents============")
+print("============================================")
+
+print(response["source_documents"][0])
