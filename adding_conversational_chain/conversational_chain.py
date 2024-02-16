@@ -1,5 +1,5 @@
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain.vectorstores import Chroma
 from langchain.prompts import PromptTemplate
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
@@ -44,7 +44,9 @@ qa_chain = ConversationalRetrievalChain.from_llm(
 )
 
 # question
-question = "What is the book about?"
+# question = "What is the overarching political bias in this book? Break it down, chapter by"
+question = "If you could summarize the main pont of this entire book into a few main takeaways, what would they be? Please output nicely. "
+# question = "What is the book about? Please break it down, chapter by chapter and summarize each chapter of the book. "
 
 # call QA chain
 response = qa_chain({"question": question})
