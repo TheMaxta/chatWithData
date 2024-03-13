@@ -1,0 +1,1 @@
+Explain the structure of a Patient resource in FHIR.

@@ -1,6 +1,3 @@
-import sys
-print(sys.path)
-
 from rag_function import rag
 import streamlit as st
 

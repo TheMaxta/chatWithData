@@ -2,7 +2,8 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.embeddings.sentence_transformer import SentenceTransformerEmbeddings
 from langchain_community.vectorstores import Chroma
 
-PDF_PATH = '../documents/Rich-Dad-Poor-Dad.pdf'
+PDF_PATH = '../documents/FHIRdocumentation.pdf'
+# PDF_PATH = '../documents/.pdf'
 
 # create loader
 loader = PyPDFLoader(PDF_PATH)
@@ -20,7 +21,7 @@ vectordb = Chroma.from_documents(
     documents=pages,
     embedding=embedding_func,
     persist_directory=f"vector_db",
-    collection_name="rich_dad_poor_dad")
+    collection_name="FHIRdocumentation")
 
 # make vector store persistant
 vectordb.persist()

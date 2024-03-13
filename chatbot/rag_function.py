@@ -12,7 +12,7 @@ embedding_function = SentenceTransformerEmbeddings(
 
 vector_db = Chroma(
     persist_directory="../document_loading/vector_db",
-    collection_name="rich_dad_poor_dad",
+    collection_name="FHIRdocumentation",
     embedding_function=embedding_function,
 )
 
@@ -28,7 +28,18 @@ Answer:""",
 )
 
 # create chat model
-llm = ChatOpenAI(openai_api_key=config("OPENAI_API_KEY"), temperature=0)
+# llm = ChatOpenAI(openai_api_key=config("OPENAI_API_KEY"), temperature=0)
+
+
+# create chat model with GPT-4
+llm = ChatOpenAI(
+    openai_api_key=config("OPENAI_API_KEY"), 
+    model="gpt-4",  # Specify GPT-4 model here
+    temperature=0
+)
+
+
+
 
 # create memory
 memory = ConversationBufferMemory(
